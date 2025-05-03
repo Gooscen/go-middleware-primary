@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"go-middleware-primary/model"
 	"go-middleware-primary/utils"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,13 @@ func Login(c *gin.Context) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	if err := c.ShouldBindJSON(&json); err != nil || json.Username != "admin" || json.Password != "123456" {
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
+		return
+	}
+
+	// 改为数据库验证用户
+	if !model.CheckUser(json.Username, json.Password) {
 		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
 		return
 	}
